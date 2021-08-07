@@ -1,4 +1,3 @@
-
 import { readFileSync } from 'fs';
 import marked from 'marked';
 import { sanitizeHtml } from './sanitizer';
@@ -12,16 +11,16 @@ const bold = readFileSync(`${__dirname}/../_fonts/Inter-Bold.woff2`).toString('b
 const mono = readFileSync(`${__dirname}/../_fonts/Vera-Mono.woff2`).toString('base64');
 
 function getCss(theme: string, fontSize: string) {
-    let background = 'white';
-    let foreground = 'black';
-    let radial = 'lightgray';
+  let background = 'white';
+  let foreground = 'black';
 
-    if (theme === 'dark') {
-        background = 'black';
-        foreground = 'white';
-        radial = 'dimgray';
-    }
-    return `
+  if (theme === 'dark') {
+    background = 'black';
+    foreground = 'white';
+  }
+  return `
+    @import url('https://fonts.googleapis.com/css?family=Noto+Sans+JP');
+
     @font-face {
         font-family: 'Inter';
         font-style:  normal;
@@ -45,7 +44,6 @@ function getCss(theme: string, fontSize: string) {
 
     body {
         background: ${background};
-        background-image: radial-gradient(circle at 25px 25px, ${radial} 2%, transparent 0%), radial-gradient(circle at 75px 75px, ${radial} 2%, transparent 0%);
         background-size: 100px 100px;
         height: 100vh;
         display: flex;
@@ -93,9 +91,9 @@ function getCss(theme: string, fontSize: string) {
         margin: 0 .05em 0 .1em;
         vertical-align: -0.1em;
     }
-    
+
     .heading {
-        font-family: 'Inter', sans-serif;
+        font-family: 'Inter', 'Noto Sans JP', sans-serif;
         font-size: ${sanitizeHtml(fontSize)};
         font-style: normal;
         color: ${foreground};
@@ -104,8 +102,8 @@ function getCss(theme: string, fontSize: string) {
 }
 
 export function getHtml(parsedReq: ParsedRequest) {
-    const { text, theme, md, fontSize, images, widths, heights } = parsedReq;
-    return `<!DOCTYPE html>
+  const { text, theme, md, fontSize } = parsedReq;
+  return `<!DOCTYPE html>
 <html>
     <meta charset="utf-8">
     <title>Generated Image</title>
@@ -115,32 +113,18 @@ export function getHtml(parsedReq: ParsedRequest) {
     </style>
     <body>
         <div>
-            <div class="spacer">
             <div class="logo-wrapper">
-                ${images.map((img, i) =>
-                    getPlusSign(i) + getImage(img, widths[i], heights[i])
-                ).join('')}
+              <img
+                class="logo"
+                alt="y.t.dev"
+                src="https://raw.githubusercontent.com/YTakahashii/blog/main/public/logo.svg"
+                width="auto"
+                height="100px"
+              />
             </div>
             <div class="spacer">
-            <div class="heading">${emojify(
-                md ? marked(text) : sanitizeHtml(text)
-            )}
-            </div>
+            <div class="heading">${emojify(md ? marked(text) : sanitizeHtml(text))}</div>
         </div>
     </body>
 </html>`;
-}
-
-function getImage(src: string, width ='auto', height = '225') {
-    return `<img
-        class="logo"
-        alt="Generated Image"
-        src="${sanitizeHtml(src)}"
-        width="${sanitizeHtml(width)}"
-        height="${sanitizeHtml(height)}"
-    />`
-}
-
-function getPlusSign(i: number) {
-    return i === 0 ? '' : '<div class="plus">+</div>';
 }
